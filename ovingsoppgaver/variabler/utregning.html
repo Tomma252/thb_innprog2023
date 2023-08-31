@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p id="average"></p>
+
+    <script>
+//hentet alderen til far og lagret alderen til faren i en variabel kalt father
+const father = 37
+
+//hentet alderen til mor og lagret alderen til moren i en variabel kalt mother
+const mother = 32
+
+//hentet alderen til datter og lagret alderen til datteren i en variabel kalt daughter
+const daughter = 7
+
+//hentet alderen til sønnen og lagret alderen til sønnen i en variabel kalt son
+const son = 2
+
+//vi regner ut totalalderen til familien
+const totalAge = father + mother + daughter + son
+
+//vi regner ut gjennomsnittsalderen
+const averageAge = totalAge /4
+
+//... og skriver den ut til elementet med id average
+document.getElementById("average").innerHTML = "Gjennomsnittsalderen er " + averageAge
+    </script>
+</body>
+</html>
