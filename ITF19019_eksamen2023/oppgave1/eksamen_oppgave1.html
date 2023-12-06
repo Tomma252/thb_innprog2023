@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eksamen oppgave 1: Kalkulator</title>
+    <link rel="stylesheet" href="font/stylesheet.css">
+    <link rel="stylesheet" href="oppgave1style.css">
+</head>
+<body>
+    <article>
+        <input type="text" id="calculation" />
+        <div id="keyboard">
+            <div id="numbers">
+                <button id="number-1" value="1" onClick="display('1')">1</button>
+                <button id="number-2" value="2" onClick="display('2')">2</button>
+                <button id="number-3" value="3" onClick="display('3')">3</button>
+                <button id="number-4" value="4" onClick="display('4')">4</button>
+                <button id="number-5" value="5" onClick="display('5')">5</button>
+                <button id="number-6" value="6" onClick="display('6')">6</button>
+                <button id="number-7" value="7" onClick="display('7')">7</button>
+                <button id="number-8" value="8" onClick="display('8')">8</button>
+                <button id="number-9" value="9" onClick="display('9')">9</button>
+                <button id="number-comma" value="." onClick="display(',')">,</button>
+                <button id="number-0" value="0" onClick="display('0')">0</button>
+                <button id="control-clear" onClick="clearScreen()">C</button>
+                
+            </div>
+            <div id="controls">
+                <button id="control-plus" value="+" onClick="display('+')">+</button>
+                <button id="control-minus" value="-" onClick="display('-')">-</button>
+                <button id="control-multiply" value="*" onClick="display('*')">*</button>
+                <button id="control-multiply" value="/" onClick="display('/')">/</button>
+                <button id="control-equal" value="=" onClick="solve()">=</button>
+            </div>
+        </div>
+        <div id="memory">
+            <p>Memory (<span id="memory-bank">0</span>)</p>     
+            <button id="memory-add" onClick="addMemory()">Add</button>
+            <button id="memory-browseback" onClick="previousMemory()" disabled>Previous</button> <!-- La til onClick="previousMemory()". Når siden blir lastet inn er den disabled. Når array er større enn 0 blir den aktivert. Se function addMemory() og function previousMemory() -->
+            <button id="memory-browseforward" onClick="nextMemory()" disabled>Next</button>    <!-- La til onClick="nextMemory()". Når siden blir lastet inn er den disabled. Se function nextMemory() -->
+        </div>
+    </article>
+
+    <script>
+
+        /* D.1: Oppretter en tom array som kan holde på tallene når man trykker på "Add". */
+        let memoryRegister = [];
+
+        /* B.1: Gjør det slik at når currentIndex blir kalt starter den på det siste elementet i memoryRegister arrayen. */
+        let currentIndex = memoryRegister.length - 1;
+
+
+        function display(val) { /* E.1: Rettskrev til display */
+            document.getElementById("calculation").value += val /* E.1: Rettskrev "getElementById" og "calculation" */
+            return val
+        }
+
+        function solve() {
+            let calculation = document.getElementById("calculation").value /* E.1: Fjernet parantes etter value. */
+            let result = eval(calculation)
+            document.getElementById("calculation").value = result  /* E.1: Rettskrev til "result" */
+            return result
+        } /* E.2: Solve-funksjonen fungerer slik at let calculation får sin verdi lik det som bruker gir i input. Deretter blir let result lik let calculation etter at eval har utført den gitte funksjonen, som i  
+        dette tilfellet er å finne ut hva bruker-inputen er utregnet til å være, hvis gyldig regnestykke. Når dette er gjort vises resultatet i input feltet. */
+
+        function clearScreen() {
+            document.getElementById("calculation").value = ""
+        }
+
+        /* D.1: Lager en funksjon for å lagre verdien på utregningen utført av solve-funksjonen og dermed legger dette til en array (memoryRegister). Denne listen blir skrevet ut til konsoll. */
+        function addMemory() {
+            memoryRegister.push(calculation.value);
+            /* D.2: Oppdaterer tallet i parantes i  "Memory (0)" til hvor mange resultater som er lagret. */
+            document.getElementById("memory-bank").innerHTML = memoryRegister.length;
+            /* D.3: Skriver ut array til konsoll for kontroll */
+            console.log(memoryRegister);
+
+            /* Aktivering av "Previous"-knappen når array har et element. */
+            if (memoryRegister.length < 2) {
+                document.getElementById("memory-browseback").removeAttribute("disabled");
+            }
+
+            if (memoryRegister.length != -1) {
+                document.getElementById("memory-browseforward").removeAttribute("disabled");
+            }
+        }
+
+        /* Etter mye fram og tilbake måtte jeg få hjelp av ChatGPT til å deaktivere knappene når man var henholdsvis på første og siste element. Se figur 1 "mappedokument". */        
+        let previousButton = document.getElementById("memory-browseback");
+        let nextButton = document.getElementById("memory-browseforward");
+        
+        /* B.1: Funksjon for å gå fra nyest til eldst i array (fra siste til første lagt til minne). */
+        function previousMemory() {
+            if (currentIndex === -1) {
+                currentIndex = memoryRegister.length - 1;
+            } else {
+                currentIndex--;
+            }
+
+            let previous = memoryRegister[currentIndex];
+            document.getElementById("calculation").value = previous;
+            console.log(previous);
+            
+            let previousButton = document.getElementById("memory-browseback");
+            if (currentIndex === 0) {
+                previousButton.disabled = true;
+                } else {
+                    previousButton.disabled = false;
+                }
+            /* A.2: Knappen blir deaktivert når den er på siste element i array. */
+            nextButton.disabled = false;
+        }
+        /* A.1: Funksjon for å gå fra eldst til nyest i array (fra første til siste lagt til minne). */
+        function nextMemory() {
+            if (currentIndex === -1) {
+                currentIndex = memoryRegister.length - 1;
+            } else {
+                currentIndex++;
+            }
+
+            let next = memoryRegister[currentIndex];
+            document.getElementById("calculation").value = next;
+            console.log(next);
+
+            let nextButton = document.getElementById("memory-browseforward");
+            nextButton.disabled = currentIndex === memoryRegister.length - 1;
+
+            /* B.2: Knappen blir deaktivert når den er på første element i array. */
+            previousButton.disabled = false;
+        }
+
+        /* C.1: Funksjon som henter det siste elementet i array og viser det input felt. */
+        /*function previousMemory() {
+            let previous = memoryRegister.at(-1);
+            document.getElementById("calculation").value = previous
+            console.log(previous);
+        }*/
+
+        
+    </script>
+</body>
+</html>

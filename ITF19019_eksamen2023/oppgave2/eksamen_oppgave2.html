@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eksamen i Innføring i Programmering - oppgave 2</title>
+    <link rel="stylesheet" href="oppgave2style.css">
+</head>
+<body>
+    <main>
+        <nav>
+            <h2>Controls</h2>
+            <p><span class="buttonIllustration" id="sbutton">S</span> Add a square</p>
+            <p><span class="buttonIllustration" id="cbutton">C</span> Add a circle</p>
+            <p><span class="buttonIllustration" id="rbutton">R</span> Remove random element</p>
+            <h2>Number of elements</h2>
+            <ul>
+                <li>Squares: <span id="squareCount">0</span></li>
+                <li>Circles: <span id="circleCount">0</span></li>
+                <li>Total: <span id="totalCount">0</span></li>
+            </ul>
+            <!-- A.1: Legger til en teller for hvor lenge man har vært aktiv på siden. -->
+            <h2>Activity:</h2>
+            <p>User has been active for <span id="activityTimer">0</span> seconds, which is <span id="elementPerSecond">0</span> elements per second.</p>
+        </nav>
+        <canvas id="drawArea"></canvas>
+    </main>
+
+    <script>
+        //INITIATE CANVAS
+        //Canvas width: 600, Canvas height: 500
+        const canvas = document.getElementById("drawArea")
+        canvas.width = 600
+        canvas.height = 500
+        const ctx = canvas.getContext("2d")
+
+        //TODO: Storage of multiple element objects (Grade C and above)
+        /* Gjør listen tom ved innlasting av side. */
+        const elements = [
+            {name: "firkant", x: 23, y: 220},
+            {name: "sirkel", x: 381, y: 444, radius: 6.5}
+        ]
+
+        console.log(elements);
+
+        /* E.3: Oppretter tre tellere som teller henholdsvis firkanter, sirkler og totalen av begge. */
+
+        let squareCount = elements.filter(element => element.name === "firkant").length;
+        let circleCount = elements.filter(element => element.name === "sirkel").length;
+        let totalCount = elements.length;
+
+        /* E.3: Funksjon for å oppdatere tellerne når det blir lagt til en firkant eller sirkel på canvas. */
+        function updateCounters() {
+            document.getElementById("squareCount").textContent = squareCount;
+            document.getElementById("circleCount").textContent = circleCount;
+            document.getElementById("totalCount").textContent = totalCount;
+        }
+
+        /* Funksjon som setter begrensning på hvor firkanten kan oppstå, som er innenfor canvas width og canvas height. Deretter kaller den på funksjonen getRandomPosition til å sette verdi
+        på x og y, som da er henholdsvis canvas width og canvas height. Til slutt legger den til en firkant som er definert under addSquare. */
+        function randomSquarePosition() {
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+
+            const x = getRandomPosition(canvasWidth);
+            const y = getRandomPosition(canvasHeight);
+
+            addSquare(x, y);
+        }
+
+        /* Definerer hvordan firkanten skal se ut og bruker verdiene funnet i funksjonen randomSquarePosition. Disse to verdiene er x(width) og y(height). */
+        function addSquare(x, y) {
+            const sideLength = 8;
+            const color = "#7CB9E8";
+
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, sideLength, sideLength);
+
+            /* Oppdaterer telleren for firkant og totalen når det blir opprettet en firkant. */
+            squareCount++;
+            totalCount++;
+            updateCounters();
+
+            /* Legger til arrayen "Elements" når den blir laget med verdiene for x, y og får navnet "firkant" som blir brukt senere til å fjerne en tilfeldig firkant. */
+            elements.push({x, y, name:"firkant"});
+            console.log(elements);
+        }
+
+        /* Definerer hvordan sirkelen skal se ut og bruker verdiene for x(width), y(height), og radius som blir funnet i funksjonen randomCirclePosition. */
+        function addCircle(x, y, radius) {
+            const color = "#FFD700";
+
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            ctx.fill();
+
+            /* Oppdaterer telleren for sirkel og totalen ettersom det blir opprettet en sirkel. */
+            circleCount++;
+            totalCount++;
+            updateCounters();
+
+            /* Legger til arrayen "Elements" når den blir laget med verdiene for x, y, radius og får navnet "sirkel" som blir brukt senere til å fjerne en tilfeldig sirkel. */
+            elements.push({x, y, radius, name:"sirkel"});
+            console.log(elements);
+        }
+
+        /* Funksjon som setter begrensning på hvor sirkelen kan oppstå, som er innenfor canvas width og canvas height. Kaller på funksjonen getRandomPosition til å gi en tilfeldig verdi på x og y. Til slutt
+        legger den til en sirkel som er definert i addSirkel. */
+        function randomCirclePosition() {
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+
+            const x = getRandomPosition(canvasWidth);
+            const y = getRandomPosition(canvasHeight);
+            const radius = 6.5;
+
+            addCircle(x, y, radius);
+        }
+
+        /* En funksjon som genererer tilfeldig tall til en maks verdi. */
+        function getRandomPosition(max) {
+            return Math.floor(Math.random() * max);
+        }
+
+        /* En funksjon som blir brukt til å tegne de gjenværende firkanter om en firkant blir fjernet. */
+        function drawSquare(x, y) {
+            const sideLength = 8;
+            const color = "#7CB9E8";
+
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, sideLength, sideLength);
+        }
+
+        /* En funksjon som blir brukt til å tegne de gjenværende sirkler om en sirkel blir fjernet. */
+        function drawCircle(x, y, radius) {
+            const color = "#FFD700";
+
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            ctx.fill()
+        }
+
+        /* B.1: En tilfeldig firkant eller sirkel blir fjernet. */
+        function removeRandomElement() {
+                if (elements.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * elements.length);
+                    const removedElement = elements.splice(randomIndex, 1)[0];
+                    console.log(elements);
+
+                    /* B.2: Oppdaterer tellere dersom en firkant eller sirkel blir fjernet. */
+                if (removedElement.name === "firkant") {
+                    squareCount--;
+                } else if (removedElement.name === "sirkel") {
+                    circleCount--;
+                }
+                totalCount--;
+                updateCounters();
+            }
+
+            /* Når et tilfeldig element blir fjernet fra arrayen tegner den de gjenværende elementene på nytt slik at det elementet som ble borte blir 
+            også borte fra canvas. */
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            elements.forEach(element => {
+                if (element.name === "firkant") {
+                    drawSquare(element.x, element.y);
+                    } else if (element.name === "sirkel") {
+                        drawCircle(element.x, element.y, element.radius);
+                        }
+        });
+        }
+
+        /* C.1: Ved innlasting av siden blir det lagt til en firkant og en sirkel på angitt plass. Etter det oppdaterer den telleren for hvor lang arrayen er. */
+        elements.forEach(element => {
+            if (element.name === "firkant") {
+                drawSquare(element.x, element.y);
+            } else if (element.name === "sirkel") {
+                drawCircle(element.x, element.y, element.radius);
+            }
+            updateCounters();
+        })
+
+        /* E.1: Gjør det slik at man kan trykke på "S"-knappen for å lage en firkant som havner på et tilfeldig sted innenfor canvas ved bruk av funksjonen randomSquarePosition. */
+        document.getElementById("sbutton").addEventListener("click", randomSquarePosition);
+        /* D.1: Legger til tastaturklikk "s" og "S" som alternativ for å kalle på funksjonen randomSquarePosition for å legge til en firkant i canvas. */
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "s" || event.key === "S") {
+                randomSquarePosition();
+            }
+        });
+
+        /* E.2: Gjør det slik at man kan trykke på "C"-knappen for å lage en sirkel som havner på et tilfeldig sted innenfor canvas ved bruk av funksjonen randomCirclePosition. */
+        document.getElementById("cbutton").addEventListener("click", randomCirclePosition);
+        /* D.2: Legger til tastaturklikk "c" og "C" som alternativ for å kalle på funksjonen randomCirclePosition for å legge til en sirkel i canvas. */
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "c" || event.key === "C") {
+                randomCirclePosition();
+            }
+        });
+
+        /* B.1: Trykk på "R"-knappen fjerner en tilfeldig firkant eller sirkel fra canvas */
+        document.getElementById("rbutton").addEventListener("click", function () {
+            removeRandomElement();
+        });
+        /* B.1: Legger til tastaklikk "r" og "R" som alternativ for å kalle på funksjonen removeRandomElement. */
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "r" || event.key === "R") {
+                removeRandomElement();
+            }
+        });
+
+        /* A.2: En timer laget med hjelp av ChatGPT for å vise hvor lenge man har vært på nettsiden siden den ble lastet inn og hvor mange elementer som er blitt laget delt på tid som har gått.
+        Se mappedokument for skjermdump av ChatGPT-koden (figur 2). */
+        document.addEventListener("DOMContentLoaded", function () {
+            let activityTimer = document.getElementById("activityTimer");
+            let elementPerSecond = document.getElementById("elementPerSecond");
+            let sButton = document.getElementById("sbutton");
+            let cButton = document.getElementById("cbutton");
+
+            /* Oppretter tellere */
+            let startTime = Date.now();
+            let elementsCounter = 2;
+
+            setInterval(function () {
+                let currentTime = Date.now();
+                let elapsedTimeInSeconds = Math.floor((currentTime - startTime) / 1000);
+
+                activityTimer.textContent = elapsedTimeInSeconds;
+
+                let elementsPerSecond = elementsCounter / elapsedTimeInSeconds;
+
+                elementPerSecond.textContent = elementsPerSecond.toFixed(16);
+            }, 1000);
+
+            sButton.addEventListener("click", function () {
+                elementsCounter++;
+            });
+
+            cButton.addEventListener("click", function () {
+                elementsCounter++;
+            });
+        })
+
+
+
+        //Function to draw on canvas:
+        /*function renderDrawings() {
+            //Clear the rectangle
+            ctx.clearRect(0, 0, canvas.width, canvas.height)*/
+
+            //TODO: Draw the elements on canvas:
+            
+
+
+            //Testprint:
+            /*console.log("Currently drawing frames...")
+            //Use requestAnimationFrame to re-run renderDrawings-function
+            requestAnimationFrame(renderDrawings)*/
+        //}
+        //Start drawing
+        //renderDrawings()
+    </script>
+</body>
+</html>
